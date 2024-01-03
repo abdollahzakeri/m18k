@@ -8,7 +8,7 @@ import argparse
 from lightning.pytorch.callbacks import ModelCheckpoint
 from lightning.pytorch.callbacks.early_stopping import EarlyStopping
 
-def main(model_name="resnet_18"):
+def main(model_name="maskrcnn_resnet50_fpn"):
     # Instantiate the data module
     t = transforms.ToTensor()
     # if model_name == "swin_v2_b":
