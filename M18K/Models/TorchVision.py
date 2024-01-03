@@ -40,12 +40,20 @@ class MaskRCNN_ResNet50(LightningModule):
         losses = self(batch)
         self.model.train()
         loss = sum(losses.values()) / len(losses)
+        
+        self.log('train_loss_classifier', losses["loss_classifier"], prog_bar=True, sync_dist=True)
+        self.log('train_loss_box_reg', losses["loss_box_reg"], prog_bar=True, sync_dist=True)
+        self.log('train_loss_mask', losses["loss_mask"], prog_bar=True, sync_dist=True)
+        self.log('train_trailoss_objectnessn_loss', losses["loss_objectness"], prog_bar=True, sync_dist=True)
+        self.log('train_loss_rpn_box_reg', losses["loss_rpn_box_reg"], prog_bar=True, sync_dist=True)
+
         self.log('train_loss', loss, prog_bar=True, sync_dist=True)
         return loss
 
     def validation_step(self, batch):
         self.model.train()
         losses = self(batch)
+        print(losses.keys())
         loss = sum(losses.values()) / len(losses)
         self.log('val_loss', loss, prog_bar=True, sync_dist=True)
         return loss

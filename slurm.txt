@@ -1,0 +1,27 @@
+#!/bin/bash
+
+### Name of job
+#SBATCH -J Mushroom_depth
+
+### Partition
+#SBATCH -p gpu
+
+### Amount of time requesting (max 14 days)
+#SBATCH -t 288:00:00
+
+### to send email for the job
+#SBATCH --mail-user=azakeri@cougarnet.uh.edu
+#SBATCH --mail-type=ALL
+
+### tell SLURM how much memory you expect to use in mb.
+#SBATCH --mem=128G
+
+## Amount of cpus requesting (up to 48)
+#SBATCH -N 1
+#SBATCH --ntasks-per-node=8
+
+## How many gpus you would like to request (max 16)
+#SBATCH --gpus=8
+
+## command to run
+~/miniconda3/envs/hr/bin/python train.py

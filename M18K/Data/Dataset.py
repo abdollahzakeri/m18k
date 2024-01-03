@@ -11,12 +11,32 @@ from torchvision.ops.boxes import masks_to_boxes
 from torchvision import tv_tensors
 from torchvision.transforms.v2 import functional as F
 
+import albumentations as A
+
+
+
 
 class M18KDataset(torch.utils.data.Dataset):
     def __init__(self, root, transforms, train=True):
         self.root = root
         self.transforms = transforms
         self.annotations = COCO(os.path.join(root, "_annotations.coco.json"))
+        self.train = train
+
+    def augmentation(self, image, masks):
+        transform = A.Compose([
+            A.HorizontalFlip(p=0.5),
+            A.VerticalFlip(p=0.5),
+            A.RandomScale(0.1),
+            A.Affine([0.8,1.2],[0.8,1.2],None,[-360, 360],[-15, 15],fit_output=True,p=0.8),
+            A.Resize(720,1280)
+        ])
+
+        transformed = transform(image=image, masks=masks)
+        transformed_image = transformed['image']
+        transformed_mask = transformed['masks']
+        
+        return transformed_image,transformed_mask
 
     def __getitem__(self, idx):
         # load images and masks
@@ -24,12 +44,16 @@ class M18KDataset(torch.utils.data.Dataset):
         img_path = image_object["file_name"]
         # mask_path = os.path.join(self.root, "PedMasks", self.masks[idx])
         img = cv2.imread(os.path.join(self.root, img_path))
+        img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+
         masks = self.annotations.loadAnns(self.annotations.getAnnIds([image_object["id"]]))
-
-
+        mask_list = [self.annotations.annToMask(mask) for mask in masks]
+        
+        if self.train:
+            img, mask_list = self.augmentation(img,mask_list)
+        
         # tensor of shape [#objects,h,w] of binary masks
-        binary_masks = torch.tensor(np.dstack([self.annotations.annToMask(mask) for mask in masks]),
-                                    dtype=torch.uint8).permute([2, 0, 1])
+        binary_masks = torch.tensor(np.dstack(mask_list), dtype=torch.uint8).permute([2, 0, 1])
 
         # get bounding box coordinates for each mask
         boxes = masks_to_boxes(binary_masks)
@@ -54,7 +78,7 @@ class M18KDataset(torch.utils.data.Dataset):
         target["area"] = area
         target["iscrowd"] = iscrowd
 
-        if self.transforms is not None:
+        if self.transforms is not None and self.train:
             img, target = self.transforms(img, target)
         return (img, target)
     def __len__(self):
