@@ -21,7 +21,7 @@
 #SBATCH --ntasks-per-node=8
 
 ## How many gpus you would like to request (max 16)
-#SBATCH --gpus=8
+#SBATCH --gpus=2
 
 ## command to run
 ~/miniconda3/envs/hr/bin/python train.py

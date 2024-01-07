@@ -10,7 +10,7 @@ images/*
 pretrain/*.out
 __pycache__/*
 __pycache__
-runs/__pycache__/*
+run2/__pycache__/*
 .idea
 .idea/*
 yolo/datasets

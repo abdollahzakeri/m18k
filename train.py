@@ -16,6 +16,7 @@ def main(model_name="maskrcnn_resnet50_fpn"):
     
     dm = M18KDataModule(batch_size=4)
 
+    
     # Instantiate the model
     model = MaskRCNN_ResNet50()
 
@@ -38,8 +39,8 @@ def main(model_name="maskrcnn_resnet50_fpn"):
 
 
 if __name__ == '__main__':
-    # parser = argparse.ArgumentParser(description='A simple script with command-line arguments.')
-    # parser.add_argument('model', type=str, help='model name')
-    # args = parser.parse_args()
-    # model = args.model
-    main()
+    parser = argparse.ArgumentParser(description='A simple script with command-line arguments.')
+    parser.add_argument('model', type=str, help='model name')
+    args = parser.parse_args()
+    model = args.model
+    main(model)
