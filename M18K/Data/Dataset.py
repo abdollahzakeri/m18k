@@ -13,15 +13,13 @@ from torchvision.transforms.v2 import functional as F
 
 import albumentations as A
 
-
-
-
 class M18KDataset(torch.utils.data.Dataset):
-    def __init__(self, root, transforms, train=True):
+    def __init__(self, root, transforms, outputs="torch", train=True):
         self.root = root
         self.transforms = transforms
         self.annotations = COCO(os.path.join(root, "_annotations.coco.json"))
         self.train = train
+        self.outputs = outputs
 
     def augmentation(self, image, masks):
         transform = A.Compose([
@@ -45,7 +43,7 @@ class M18KDataset(torch.utils.data.Dataset):
         # mask_path = os.path.join(self.root, "PedMasks", self.masks[idx])
         img = cv2.imread(os.path.join(self.root, img_path))
         img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
-
+        h,w,_ = img.shape
         masks = self.annotations.loadAnns(self.annotations.getAnnIds([image_object["id"]]))
         mask_list = [self.annotations.annToMask(mask) for mask in masks]
         
@@ -70,16 +68,25 @@ class M18KDataset(torch.utils.data.Dataset):
         #img = tv_tensors.Image(img)
         img = torchvision.transforms.ToTensor()(img)
 
-        target = {}
-        target["boxes"] = tv_tensors.BoundingBoxes(boxes, format="XYXY", canvas_size=F.get_size(img))
-        target["masks"] = tv_tensors.Mask(binary_masks)
-        target["labels"] = labels
-        target["image_id"] = image_id
-        target["area"] = area
-        target["iscrowd"] = iscrowd
+        # if self.transforms is not None and self.train:
+        #     img, target = self.transforms(img, target)
 
-        if self.transforms is not None and self.train:
-            img, target = self.transforms(img, target)
-        return (img, target)
+        if self.outputs == "torch":
+            target = {}
+            target["boxes"] = tv_tensors.BoundingBoxes(boxes, format="XYXY", canvas_size=F.get_size(img))
+            target["masks"] = tv_tensors.Mask(binary_masks)
+            target["labels"] = labels
+            target["image_id"] = image_id
+            target["area"] = area
+            target["iscrowd"] = iscrowd
+            return (img, target)
+        elif self.outputs == "hf":
+            pixel_mask = torch.ones((h, w)).int()  # Convert to int for binary mask
+            return {
+                "pixel_values": img,
+                "pixel_mask": pixel_mask,
+                "mask_labels": binary_masks,
+                "class_labels": labels
+            }
     def __len__(self):
         return len(self.annotations.imgs)
