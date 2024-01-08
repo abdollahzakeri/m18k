@@ -9,7 +9,7 @@ class M18KDataModule(pl.LightningDataModule):
         self.transform = transform
         self.batch_size = batch_size
         self.outputs = outputs
-        self.collate = self.collate_fn_torch if outputs == torch else self.collate_fn_hf
+        self.collate = self.collate_fn_torch if outputs == "torch" else self.collate_fn_hf
     def setup(self, stage=None):
         pass
 

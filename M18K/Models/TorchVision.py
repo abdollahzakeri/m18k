@@ -1,11 +1,10 @@
 import torch.nn.functional as F
 from lightning import LightningModule, Trainer
 import torchvision
-
-
 import torch
 from torch.nn import BCELoss
 from torchmetrics import Accuracy
+from torch.optim.lr_scheduler import StepLR
 
 
 class TorchVisionGenericModel(LightningModule):
@@ -36,10 +35,11 @@ class TorchVisionGenericModel(LightningModule):
     def validation_step(self, batch):
         self.model.train()
         losses = self(batch)
-        print(losses.keys())
         loss = sum(losses.values()) / len(losses)
         self.log('val_loss', loss, prog_bar=True, sync_dist=True)
         return loss
 
     def configure_optimizers(self):
-        return torch.optim.Adam(self.parameters(), lr=0.001)
+        optim = torch.optim.Adam(self.parameters(), lr=0.001)
+        scheduler = StepLR(optim, gamma=0.95, step_size=2)
+        return [optim], [{"scheduler": scheduler, "interval": "epoch"}]
