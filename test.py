@@ -42,7 +42,7 @@ def main(model_name="maskrcnn_resnet50_fpn_v2"):
     trainer = Trainer(max_epochs=1000, devices=1, log_every_n_steps=1, logger=tb_logger)
 
     # Train the model ⚡
-    trainer.test(model, dm, ckpt_path="runs/fasterrcnn_resnet50_fpn_v2/fasterrcnn_resnet50_fpn_v2-epoch=239-val_loss=0.0449.ckpt")
+    trainer.test(model, dm, ckpt_path="runs/maskrcnn_efficientnet_v2_s/maskrcnn_efficientnet_v2_s-epoch=462-val_loss=0.0913.ckpt")
 
 
 if __name__ == '__main__':
@@ -50,5 +50,5 @@ if __name__ == '__main__':
     # parser.add_argument('model', type=str, help='model name',default="maskrcnn_resnet50_fpn_v2")
     # args = parser.parse_args()
     # model = args.model
-    model = "fasterrcnn_resnet50_fpn_v2"
+    model = "maskrcnn_efficientnet_b1"
     main(model)

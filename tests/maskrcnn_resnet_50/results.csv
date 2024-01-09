@@ -1,13 +1,13 @@
-,Detection
-Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ],0.8807466937193643
-Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=150 ],0.9491835204896156
-Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=150 ],0.9366367055934524
-Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=150 ],0.40180562416274646
-Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=150 ],0.8158033779298713
-Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=150 ],0.9834760796494142
-Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=50 ],0.8158629195494713
-Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ],0.9096328876005897
-Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=150 ],0.9096328876005897
-Average Recall     (AR) @[ IoU=0.50:0.95 | area= small | maxDets=150 ],0.7491452991452991
-Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=150 ],0.8589178439930976
-Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=150 ],0.9879622464208723
+,Segmentation,Detection
+Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ],0.8668644253415188,0.8768760509365433
+Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=150 ],0.9450428493908828,0.9442836925595646
+Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=150 ],0.9261328512942375,0.9329564716190086
+Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=150 ],0.3976817889783154,0.40065665641777426
+Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=150 ],0.7833098986332482,0.7969874201007449
+Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=150 ],0.9767551143230184,0.980246197261047
+Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=50 ],0.8016880717121921,0.8101649281679114
+Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ],0.8961768896035658,0.9058518291263778
+Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=150 ],0.8961768896035658,0.9058518291263778
+Average Recall     (AR) @[ IoU=0.50:0.95 | area= small | maxDets=150 ],0.7346153846153846,0.7487179487179487
+Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=150 ],0.8324951322819677,0.8476528832578183
+Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=150 ],0.9847154662539385,0.9873673373500635
