@@ -4,8 +4,6 @@ dataset/*
 *.ckpt
 *.csv
 
-images/
-images/*
 *.out
 pretrain/*.out
 __pycache__/*
