@@ -1,10 +1,14 @@
+from typing import Any
+
 import torch.nn.functional as F
 from lightning import LightningModule, Trainer
 import torchvision
 import torch
+from lightning.pytorch.utilities.types import STEP_OUTPUT
 from torch.nn import BCELoss
 from torchmetrics import Accuracy
 from torch.optim.lr_scheduler import StepLR
+
 
 
 class TorchVisionGenericModel(LightningModule):
@@ -38,6 +42,7 @@ class TorchVisionGenericModel(LightningModule):
         loss = sum(losses.values()) / len(losses)
         self.log('val_loss', loss, prog_bar=True, sync_dist=True)
         return loss
+
 
     def configure_optimizers(self):
         optim = torch.optim.Adam(self.parameters(), lr=0.001)

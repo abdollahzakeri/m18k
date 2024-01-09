@@ -11,12 +11,13 @@ from lightning.pytorch.callbacks.early_stopping import EarlyStopping
 from torch.cuda import device_count
 from lightning.pytorch.callbacks import LearningRateMonitor
 
+
 def main(model_name="maskrcnn_resnet50_fpn_v2"):
     # Instantiate the data module
     t = transforms.ToTensor()
     # if model_name == "swin_v2_b":
-    
-    dm = M18KDataModule(batch_size=8,outputs="torch")
+
+    dm = M18KDataModule(batch_size=8, outputs="torch")
 
     # Instantiate the model
     match model_name:
@@ -37,29 +38,17 @@ def main(model_name="maskrcnn_resnet50_fpn_v2"):
         case _:
             model = FasterRCNN()
 
-    checkpoint_callback = ModelCheckpoint(
-        save_top_k=3,
-        monitor="val_loss",
-        mode="min",
-        dirpath=f"runs/{model_name}/",
-        filename= model_name+"-{epoch:02d}-{val_loss:.4f}",
-    )
-
-    lr_monitor = LearningRateMonitor(logging_interval='step')
-
-    #early_stop_callback = EarlyStopping(monitor="val_accuracy", min_delta=0.00, patience=50, verbose=False, mode="max")
-
-    # Initialize a trainer
-    tb_logger = pl_loggers.TensorBoardLogger(save_dir=f"runs/{model_name}/")
-    trainer = Trainer(max_epochs=1000, devices=device_count(), log_every_n_steps=1, logger=tb_logger, callbacks=[checkpoint_callback, lr_monitor])
+    tb_logger = pl_loggers.TensorBoardLogger(save_dir=f"tests/{model_name}/")
+    trainer = Trainer(max_epochs=1000, devices=1, log_every_n_steps=1, logger=tb_logger)
 
     # Train the model ⚡
-    trainer.fit(model, dm)
+    trainer.test(model, dm, ckpt_path="runs/maskrcnn_efficientnet_v2_s/maskrcnn_efficientnet_v2_s-epoch=462-val_loss=0.0913.ckpt")
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='A simple script with command-line arguments.')
-    parser.add_argument('model', type=str, help='model name')
-    args = parser.parse_args()
-    model = args.model
+    # parser = argparse.ArgumentParser(description='A simple script with command-line arguments.')
+    # parser.add_argument('model', type=str, help='model name',default="maskrcnn_resnet50_fpn_v2")
+    # args = parser.parse_args()
+    # model = args.model
+    model = "maskrcnn_efficientnet_b1"
     main(model)

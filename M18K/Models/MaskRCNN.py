@@ -1,13 +1,23 @@
+import os
+
+import cv2
+
 from .TorchVision import TorchVisionGenericModel
 from torchvision.models.detection.mask_rcnn import MaskRCNNPredictor
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 from torchvision.models.detection import maskrcnn_resnet50_fpn_v2
 import torchvision
+import torch
 from torchvision.models.detection.rpn import AnchorGenerator
+from torchvision.utils import draw_bounding_boxes, draw_segmentation_masks
+import matplotlib.pyplot as plt
+import numpy as np
+import time
 
 class MaskRCNN(TorchVisionGenericModel):
     def __init__(self, backbone="resnet_50"):
         super().__init__()
+        self.backbone = backbone
         match backbone:
             case "resnet_50":
                 self.model = maskrcnn_resnet50_fpn_v2(weights="DEFAULT")
@@ -84,3 +94,20 @@ class MaskRCNN(TorchVisionGenericModel):
 
         self.log('train_loss', loss, prog_bar=True, sync_dist=True)
         return loss
+
+    def test_step(self, batch):
+        images,targets = batch
+        results = self.model(images)
+        for image, r in zip(images, results):
+            path = f"tests/maskrcnn_{self.backbone}/images/"
+            os.makedirs(path, exist_ok=True)
+            image = (255.0 * (image - image.min()) / (image.max() - image.min())).to(torch.uint8)
+            colors = [(255,0,0) if x == 1 else (0,0,255) for x in r["labels"]]
+            masks = r["masks"].squeeze(1) > 0.5
+
+            visualized = draw_bounding_boxes(image,boxes= r["boxes"],colors=colors,width=2)
+            visualized = draw_segmentation_masks(visualized,masks=masks,alpha=0.6,colors=colors)
+            visualized = visualized.permute(1, 2, 0).numpy().astype(np.uint8)
+            path = f"tests/maskrcnn_{self.backbone}/images/"
+            os.makedirs(path,exist_ok=True)
+            cv2.imwrite(f"{path}{time.time()}.jpg", cv2.cvtColor(visualized,cv2.COLOR_BGR2RGB))
