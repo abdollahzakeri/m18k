@@ -2,7 +2,6 @@ dataset
 dataset/*
 *.tif
 *.ckpt
-*.csv
 
 *.out
 pretrain/*.out
