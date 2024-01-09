@@ -43,7 +43,7 @@ class M18KDataset(torch.utils.data.Dataset):
         # mask_path = os.path.join(self.root, "PedMasks", self.masks[idx])
         img = cv2.imread(os.path.join(self.root, img_path))
         img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
-        h,w,_ = img.shape
+        h, w, _ = img.shape
         masks = self.annotations.loadAnns(self.annotations.getAnnIds([image_object["id"]]))
         mask_list = [self.annotations.annToMask(mask) for mask in masks]
         
@@ -79,6 +79,7 @@ class M18KDataset(torch.utils.data.Dataset):
             target["image_id"] = image_id
             target["area"] = area
             target["iscrowd"] = iscrowd
+            target["image_name"] = image_object["file_name"]
             return (img, target)
         elif self.outputs == "hf":
             pixel_mask = torch.ones((h, w)).int()  # Convert to int for binary mask
