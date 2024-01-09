@@ -3,11 +3,18 @@ from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 from torchvision.models.detection import fasterrcnn_resnet50_fpn_v2, fasterrcnn_mobilenet_v3_large_fpn
 from torchvision.models.detection.rpn import AnchorGenerator
 import torchvision
-
+from torchvision.utils import draw_bounding_boxes
+import cv2
+import time
+import os
+import numpy as np
+import torch
 
 class FasterRCNN(TorchVisionGenericModel):
     def __init__(self, backbone="resnet_50"):
         super().__init__()
+        self.backbone = backbone
+
         match backbone:
             case "resnet_50":
                 self.model = fasterrcnn_resnet50_fpn_v2(weights="DEFAULT")
@@ -41,3 +48,16 @@ class FasterRCNN(TorchVisionGenericModel):
 
         # replace the pre-trained head with a new one
         self.model.roi_heads.box_predictor = FastRCNNPredictor(in_features, self.num_classes)
+
+
+    def test_step(self, batch):
+        images,targets = batch
+        results = self.model(images)
+        for image, r in zip(images, results):
+            image = (255.0 * (image - image.min()) / (image.max() - image.min())).to(torch.uint8)
+            colors = [(255,0,0) if x == 1 else (0,0,255) for x in r["labels"]]
+            visualized = draw_bounding_boxes(image,boxes= r["boxes"],colors=colors,width=2)
+            visualized = visualized.permute(1, 2, 0).numpy().astype(np.uint8)
+            path = f"tests/fasterrcnn_{self.backbone}/visualizations/"
+            os.makedirs(path,exist_ok=True)
+            cv2.imwrite(f"{path}{time.time()}.jpg", cv2.cvtColor(visualized,cv2.COLOR_BGR2RGB))
