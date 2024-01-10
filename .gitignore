@@ -1,7 +1,7 @@
 dataset
 dataset/*
 *.tif
-*.ckpt
+
 
 
 *.out
@@ -14,7 +14,7 @@ run2/__pycache__/*
 yolo/datasets
 yolo/dataset/*
 yolo/*.out
-*.pt
+*/__pycache__
 yolo/*.pt
 
 .DS_Store
