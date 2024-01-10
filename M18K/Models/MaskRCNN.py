@@ -76,6 +76,28 @@ class MaskRCNN(TorchVisionGenericModel):
                     rpn_anchor_generator=anchor_generator,
                     box_roi_pool=roi_pooler
                 )
+
+            case "densenet121":
+                backbone = torchvision.models.densenet121(weights="DEFAULT").features
+                backbone.out_channels = 1024
+                anchor_generator = AnchorGenerator(
+                    sizes=((32, 64, 128, 256, 512),),
+                    aspect_ratios=((0.5, 1.0, 2.0),)
+                )
+
+                roi_pooler = torchvision.ops.MultiScaleRoIAlign(
+                    featmap_names=['0'],
+                    output_size=7,
+                    sampling_ratio=2
+                )
+
+                # put the pieces together inside a Faster-RCNN model
+                self.model = torchvision.models.detection.MaskRCNN(
+                    backbone,
+                    num_classes=self.num_classes,
+                    rpn_anchor_generator=anchor_generator,
+                    box_roi_pool=roi_pooler
+                )
             
         
         in_features = self.model.roi_heads.box_predictor.cls_score.in_features

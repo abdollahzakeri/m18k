@@ -82,12 +82,13 @@ class M18KDataset(torch.utils.data.Dataset):
             target["image_name"] = image_object["file_name"]
             return (img, target)
         elif self.outputs == "hf":
-            pixel_mask = torch.ones((h, w)).int()  # Convert to int for binary mask
+            non_black_mask = img != 0
+            pixel_mask = non_black_mask.all(dim=0).int()
             return {
-                "pixel_values": img,
-                "pixel_mask": pixel_mask,
-                "mask_labels": binary_masks,
-                "class_labels": labels
+                "pixel_values": img.float(),
+                "pixel_mask": pixel_mask.long(),
+                "mask_labels": binary_masks.float(),
+                "class_labels": labels.long()
             }
     def __len__(self):
         return len(self.annotations.imgs)

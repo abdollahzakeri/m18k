@@ -3,6 +3,7 @@ dataset/*
 *.tif
 *.ckpt
 
+
 *.out
 pretrain/*.out
 __pycache__/*

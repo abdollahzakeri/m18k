@@ -51,6 +51,29 @@ class FasterRCNN(TorchVisionGenericModel):
                     box_roi_pool=roi_pooler
                 )
 
+            case "densenet121":
+                backbone = torchvision.models.densenet121(weights="DEFAULT").features
+                backbone.out_channels = 1024
+                anchor_generator = AnchorGenerator(
+                    sizes=((32, 64, 128, 256, 512),),
+                    aspect_ratios=((0.5, 1.0, 2.0),)
+                )
+
+                roi_pooler = torchvision.ops.MultiScaleRoIAlign(
+                    featmap_names=['0'],
+                    output_size=7,
+                    sampling_ratio=2
+                )
+
+                # put the pieces together inside a Faster-RCNN model
+                self.model = torchvision.models.detection.FasterRCNN(
+                    backbone,
+                    num_classes=self.num_classes,
+                    rpn_anchor_generator=anchor_generator,
+                    box_roi_pool=roi_pooler
+                )
+
+
         in_features = self.model.roi_heads.box_predictor.cls_score.in_features
 
         # replace the pre-trained head with a new one
@@ -62,7 +85,6 @@ class FasterRCNN(TorchVisionGenericModel):
 
         ds_root = "M18K/Data/test"
         self.results["images"] += [os.path.join(ds_root,x["image_name"]) for x in targets]
-        # Replace below with actual masks
         self.results["boxes"] += [r["boxes"].cpu().numpy() for r in outputs]  # List of bounding boxes for each image
         self.results["labels"] += [r["labels"].cpu().numpy() for r in outputs]  # List of labels for each bounding box
         self.results["scores"] += [r["scores"].cpu().numpy() for r in outputs]
@@ -129,7 +151,6 @@ class FasterRCNN(TorchVisionGenericModel):
             })
 
             for box, lbl, sc in zip(bbox, label, score):
-                # Convert mask to polygon
                 x1, y1, x2, y2 = box
                 h, w = (x2-x1),(y2-y1)
                 coco_output["annotations"].append({
