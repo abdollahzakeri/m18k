@@ -13,28 +13,36 @@ from torchvision.transforms.v2 import functional as F
 
 import albumentations as A
 
+
 class M18KDataset(torch.utils.data.Dataset):
-    def __init__(self, root, transforms, outputs="torch", train=True):
+    def __init__(self, root, transforms, outputs="torch", train=True, depth=True):
         self.root = root
         self.transforms = transforms
         self.annotations = COCO(os.path.join(root, "_annotations.coco.json"))
         self.train = train
         self.outputs = outputs
+        self.depth = depth
 
-    def augmentation(self, image, masks):
+    def augmentation(self, image, masks, depth=None):
         transform = A.Compose([
             A.HorizontalFlip(p=0.5),
             A.VerticalFlip(p=0.5),
             A.RandomScale(0.1),
-            A.Affine([0.8,1.2],[0.8,1.2],None,[-360, 360],[-15, 15],fit_output=True,p=0.8),
-            A.Resize(720,1280)
+            A.Affine([0.8, 1.2], [0.8, 1.2], None, [-360, 360], [-15, 15], fit_output=True, p=0.8),
+            A.Resize(720, 1280)
         ])
 
-        transformed = transform(image=image, masks=masks)
-        transformed_image = transformed['image']
-        transformed_mask = transformed['masks']
-        
-        return transformed_image,transformed_mask
+        if depth is not None:
+            transformed = transform(image=image, masks=masks, mask=depth)
+            transformed_image = transformed['image']
+            transformed_mask = transformed['masks']
+            transformed_depth = transformed['mask']
+            return transformed_image, transformed_mask, transformed_depth
+        else:
+            transformed = transform(image=image, masks=masks)
+            transformed_image = transformed['image']
+            transformed_mask = transformed['masks']
+            return transformed_image, transformed_mask
 
     def __getitem__(self, idx):
         # load images and masks
@@ -42,14 +50,26 @@ class M18KDataset(torch.utils.data.Dataset):
         img_path = image_object["file_name"]
         # mask_path = os.path.join(self.root, "PedMasks", self.masks[idx])
         img = cv2.imread(os.path.join(self.root, img_path))
-        img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
-        h,w,_ = img.shape
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        if self.depth:
+            d = np.load(os.path.join(self.root, img_path[:-4] + ".npy"))
+            percentiles = np.percentile(d, range(1, 101))
+            differences = np.diff(percentiles)
+            max_diff_index = np.argmax(differences)
+            threshold = percentiles[max_diff_index]
+            d = np.clip(d, None, threshold)
+
+        h, w, _ = img.shape
         masks = self.annotations.loadAnns(self.annotations.getAnnIds([image_object["id"]]))
         mask_list = [self.annotations.annToMask(mask) for mask in masks]
-        
+
         if self.train:
-            img, mask_list = self.augmentation(img,mask_list)
-        
+            if self.depth:
+                img, mask_list, d = self.augmentation(img, mask_list, d)
+                d = torch.from_numpy(d / np.max(d)).float()
+            else:
+                img, mask_list = self.augmentation(img, mask_list)
+
         # tensor of shape [#objects,h,w] of binary masks
         binary_masks = torch.tensor(np.dstack(mask_list), dtype=torch.uint8).permute([2, 0, 1])
 
@@ -65,8 +85,12 @@ class M18KDataset(torch.utils.data.Dataset):
         iscrowd = torch.tensor([mask["iscrowd"] for mask in masks], dtype=torch.int64)
 
         # Wrap sample and targets into torchvision tv_tensors:
-        #img = tv_tensors.Image(img)
+        # img = tv_tensors.Image(img)
         img = torchvision.transforms.ToTensor()(img)
+
+        if self.depth:
+            # concatenate depth to image
+            img = torch.cat((img, d.unsqueeze(0)), dim=0)
 
         # if self.transforms is not None and self.train:
         #     img, target = self.transforms(img, target)
@@ -79,14 +103,19 @@ class M18KDataset(torch.utils.data.Dataset):
             target["image_id"] = image_id
             target["area"] = area
             target["iscrowd"] = iscrowd
+            target["image_name"] = image_object["file_name"]
+            if self.depth:
+                target["depth"] = d
             return (img, target)
         elif self.outputs == "hf":
-            pixel_mask = torch.ones((h, w)).int()  # Convert to int for binary mask
+            non_black_mask = img != 0
+            pixel_mask = non_black_mask.all(dim=0).int()
             return {
-                "pixel_values": img,
-                "pixel_mask": pixel_mask,
-                "mask_labels": binary_masks,
-                "class_labels": labels
+                "pixel_values": img.float(),
+                "pixel_mask": pixel_mask.long(),
+                "mask_labels": binary_masks.float(),
+                "class_labels": labels.long()
             }
+
     def __len__(self):
         return len(self.annotations.imgs)
