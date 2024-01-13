@@ -46,5 +46,5 @@ class TorchVisionGenericModel(LightningModule):
 
     def configure_optimizers(self):
         optim = torch.optim.Adam(self.parameters(), lr=0.001)
-        scheduler = StepLR(optim, gamma=0.95, step_size=2)
+        scheduler = StepLR(optim, gamma=0.95, step_size=10)
         return [optim], [{"scheduler": scheduler, "interval": "epoch"}]

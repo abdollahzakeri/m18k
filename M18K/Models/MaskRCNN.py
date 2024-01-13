@@ -24,7 +24,7 @@ from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
 import pandas as pd
 import timm
-from TimmWrapper import TimmBackboneWrapper
+from .TimmWrapper import TimmBackboneWrapper
 
 class MaskRCNN(TorchVisionGenericModel):
     def __init__(self, backbone="resnet_50", depth=False):
@@ -122,7 +122,9 @@ class MaskRCNN(TorchVisionGenericModel):
             backbone,
             num_classes=self.num_classes,
             rpn_anchor_generator=anchor_generator,
-            box_roi_pool=roi_pooler
+            box_roi_pool=roi_pooler,
+            image_mean=[0.0, 0.0, 0.0, 0.0] if self.depth else None,
+            image_std=[1.0, 1.0, 1.0, 1.0]  if self.depth else None
         )
         return model
     def on_test_batch_end(self, outputs, batch: Any, batch_idx: int, dataloader_idx: int = 0) -> None:
@@ -185,6 +187,7 @@ class MaskRCNN(TorchVisionGenericModel):
         df = pd.DataFrame.from_dict(results, orient='index', columns=["Segmentation", "Detection"])
         df.to_csv(os.path.join(path, "results.csv"))
     def training_step(self, batch):
+
         losses = self(batch)
         self.model.train()
         loss = sum(losses.values()) / len(losses)

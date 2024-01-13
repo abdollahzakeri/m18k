@@ -57,7 +57,9 @@ class M18KDataset(torch.utils.data.Dataset):
             differences = np.diff(percentiles)
             max_diff_index = np.argmax(differences)
             threshold = percentiles[max_diff_index]
-            d = np.clip(d, None, threshold)
+            if max_diff_index > 95 and threshold > 0:
+
+                d = np.clip(d, 0.0, threshold)
 
         h, w, _ = img.shape
         masks = self.annotations.loadAnns(self.annotations.getAnnIds([image_object["id"]]))
@@ -66,9 +68,9 @@ class M18KDataset(torch.utils.data.Dataset):
         if self.train:
             if self.depth:
                 img, mask_list, d = self.augmentation(img, mask_list, d)
-                d = torch.from_numpy(d / np.max(d)).float()
             else:
                 img, mask_list = self.augmentation(img, mask_list)
+
 
         # tensor of shape [#objects,h,w] of binary masks
         binary_masks = torch.tensor(np.dstack(mask_list), dtype=torch.uint8).permute([2, 0, 1])
@@ -89,7 +91,7 @@ class M18KDataset(torch.utils.data.Dataset):
         img = torchvision.transforms.ToTensor()(img)
 
         if self.depth:
-            # concatenate depth to image
+            d = torch.from_numpy(d / np.max(d)).float()
             img = torch.cat((img, d.unsqueeze(0)), dim=0)
 
         # if self.transforms is not None and self.train:

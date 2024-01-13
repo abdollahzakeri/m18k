@@ -73,7 +73,6 @@ class FasterRCNN(TorchVisionGenericModel):
                     box_roi_pool=roi_pooler
                 )
 
-
         in_features = self.model.roi_heads.box_predictor.cls_score.in_features
 
         # replace the pre-trained head with a new one

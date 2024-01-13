@@ -18,10 +18,10 @@
 
 ## Amount of cpus requesting (up to 48)
 #SBATCH -N 1
-#SBATCH --ntasks-per-node=8
+#SBATCH --ntasks-per-node=1
 
 ## How many gpus you would like to request (max 16)
-#SBATCH --gpus=8
+#SBATCH --gpus=1
 
 ### maskrcnn_resnet50_fpn_v2
 ### fasterrcnn_resnet50_fpn_v2
@@ -29,4 +29,4 @@
 ### retinanet_resnet50_fpn_v2
 ### fasterrcnn_swin_v2_fpn
 ## command to run
-~/miniconda3/envs/hr/bin/python train.py hf_mask2former
+~/miniconda3/envs/hr/bin/python train.py maskrcnn_resnet50_fpn_v2 --batch_size=8 --depth
