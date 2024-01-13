@@ -27,7 +27,7 @@ def main(model_name="maskrcnn_resnet50_fpn_v2"):
     match model_name:
 
         case "maskrcnn_resnet50_fpn_v2":
-            model = MaskRCNN()
+            model = MaskRCNN(depth=True)
         case "maskrcnn_mobilenet_v3":
             model = MaskRCNN(backbone="mobilenet_v3")
         case "maskrcnn_efficientnet_b1":
@@ -75,5 +75,5 @@ if __name__ == '__main__':
     # parser.add_argument('model', type=str, help='model name')
     # args = parser.parse_args()
     # model = args.model
-    model = "hf_mask2former"
+    model = "maskrcnn_resnet50_fpn_v2"
     main(model)
