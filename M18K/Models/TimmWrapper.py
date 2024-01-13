@@ -11,5 +11,6 @@ class TimmBackboneWrapper(torch.nn.Module):
         self.out_channels = self.model.feature_info.channels()[-1]  # Set out_channels to the channels of the last feature layer
 
     def forward(self, x):
-        return self.model(x)
+        output = self.model(x)
+        return {f"{k}": v for k, v in enumerate(output)}
 
