@@ -25,6 +25,7 @@ from pycocotools.cocoeval import COCOeval
 import pandas as pd
 import timm
 from .TimmWrapper import TimmBackboneWrapper
+from torchvision.models.detection.mask_rcnn import MaskRCNNHeads, MaskRCNNPredictor
 
 class MaskRCNN(TorchVisionGenericModel):
     def __init__(self, backbone="resnet_50", depth=False):
@@ -35,8 +36,32 @@ class MaskRCNN(TorchVisionGenericModel):
         match backbone:
             case "resnet_50":
                 if self.depth:
-                    backbone = TimmBackboneWrapper('resnet50', pretrained=True, in_chans=4)
-                    self.model = self.create_model(backbone, backbone.out_channels)
+                    backbone = TimmBackboneWrapper("resnet50", pretrained=True, in_chans=4)
+
+                    anchor_generator = AnchorGenerator(
+                        sizes=(32, 64, 128, 256, 512),
+                        aspect_ratios=(
+                        (0.5, 1.0, 2.0), (0.5, 1.0, 2.0), (0.5, 1.0, 2.0), (0.5, 1.0, 2.0), (0.5, 1.0, 2.0),)
+                    )
+
+                    roi_pooler = torchvision.ops.MultiScaleRoIAlign(featmap_names=["0", "1", "2", "3"], output_size=14,
+                                                                    sampling_ratio=2)
+
+                    mask_head = MaskRCNNHeads(256, (256, 256, 256, 256), 1)
+
+                    #mask_predictor = MaskRCNNPredictor(256, 256, 3)
+
+                    # put the pieces together inside a Faster-RCNN model
+                    self.model = torchvision.models.detection.MaskRCNN(
+                        backbone.model,
+                        num_classes=3,
+                        rpn_anchor_generator=anchor_generator,
+                        box_roi_pool=roi_pooler,
+                        image_mean=[0.0, 0.0, 0.0, 0.0],
+                        image_std=[1.0, 1.0, 1.0, 1.0],
+                        mask_head=mask_head,
+                        # mask_predictor= mask_predictor
+                    )
                 else:
                     self.model = maskrcnn_resnet50_fpn_v2(weights="DEFAULT")
 
