@@ -12,7 +12,7 @@ from torchvision import tv_tensors
 from torchvision.transforms.v2 import functional as F
 
 import albumentations as A
-
+import copy
 
 class M18KDataset(torch.utils.data.Dataset):
     def __init__(self, root, transforms, outputs="torch", train=True, depth=True):
@@ -91,6 +91,7 @@ class M18KDataset(torch.utils.data.Dataset):
         img = torchvision.transforms.ToTensor()(img)
 
         if self.depth:
+            img_org = copy.deepcopy(img)
             d = torch.from_numpy(d / np.max(d)).float()
             img = torch.cat((img, d.unsqueeze(0)), dim=0)
 
@@ -108,6 +109,7 @@ class M18KDataset(torch.utils.data.Dataset):
             target["image_name"] = image_object["file_name"]
             if self.depth:
                 target["depth"] = d
+                target["img_org"] = img_org
             return (img, target)
         elif self.outputs == "hf":
             non_black_mask = img != 0

@@ -7,21 +7,21 @@
 #SBATCH -p gpu
 
 ### Amount of time requesting (max 14 days)
-#SBATCH -t 288:00:00
+#SBATCH -t 72:00:00
 
 ### to send email for the job
 #SBATCH --mail-user=azakeri@cougarnet.uh.edu
 #SBATCH --mail-type=ALL
 
 ### tell SLURM how much memory you expect to use in mb.
-#SBATCH --mem=128G
+#SBATCH --mem=64G
 
 ## Amount of cpus requesting (up to 48)
 #SBATCH -N 1
-#SBATCH --ntasks-per-node=1
+#SBATCH --ntasks-per-node=8
 
 ## How many gpus you would like to request (max 16)
-#SBATCH --gpus=1
+#SBATCH --gpus=8
 
 ### maskrcnn_resnet50_fpn_v2
 ### fasterrcnn_resnet50_fpn_v2
@@ -29,4 +29,4 @@
 ### retinanet_resnet50_fpn_v2
 ### fasterrcnn_swin_v2_fpn
 ## command to run
-~/miniconda3/envs/hr/bin/python train.py maskrcnn_resnet50_fpn_v2 --batch_size=8 --depth
+srun ~/miniconda3/envs/hr/bin/python train.py maskrcnn_resnet101 --batch_size=4 --depth

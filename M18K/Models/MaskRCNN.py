@@ -25,6 +25,7 @@ from pycocotools.cocoeval import COCOeval
 import pandas as pd
 import timm
 from .TimmWrapper import TimmBackboneWrapper
+from torchvision.models.detection.mask_rcnn import MaskRCNNHeads, MaskRCNNPredictor
 
 class MaskRCNN(TorchVisionGenericModel):
     def __init__(self, backbone="resnet_50", depth=False):
@@ -35,10 +36,18 @@ class MaskRCNN(TorchVisionGenericModel):
         match backbone:
             case "resnet_50":
                 if self.depth:
-                    backbone = TimmBackboneWrapper('resnet50', pretrained=True, in_chans=4)
-                    self.model = self.create_model(backbone, backbone.out_channels)
+                    backbone = TimmBackboneWrapper("resnet50", pretrained=True, in_chans=4)
+                    self.model = self.create_model(backbone,backbone.out_channels)
                 else:
                     self.model = maskrcnn_resnet50_fpn_v2(weights="DEFAULT")
+
+            case "resnet_101":
+                if self.depth:
+                    backbone = TimmBackboneWrapper("resnet101", pretrained=True, in_chans=4)
+                    self.model = self.create_model(backbone, backbone.out_channels)
+                else:
+                    backbone = TimmBackboneWrapper("resnet101", pretrained=True)
+                    self.model = self.create_model(backbone, backbone.out_channels)
 
             case "mobilenet_v3":
                 backbone = torchvision.models.mobilenet_v3_large(weights="DEFAULT").features
@@ -47,25 +56,7 @@ class MaskRCNN(TorchVisionGenericModel):
             
             case "efficientnet_b1":
                 backbone = torchvision.models.efficientnet_b1(weights="DEFAULT").features
-                backbone.out_channels = 1280
-                anchor_generator = AnchorGenerator(
-                    sizes=((32, 64, 128, 256, 512),),
-                    aspect_ratios=((0.5, 1.0, 2.0),)
-                )
-
-                roi_pooler = torchvision.ops.MultiScaleRoIAlign(
-                    featmap_names=['0'],
-                    output_size=7,
-                    sampling_ratio=2
-                )
-
-                # put the pieces together inside a Faster-RCNN model
-                self.model = torchvision.models.detection.MaskRCNN(
-                    backbone,
-                    num_classes=self.num_classes,
-                    rpn_anchor_generator=anchor_generator,
-                    box_roi_pool=roi_pooler
-                )
+                self.model = self.create_model(backbone, 1280)
 
             case "densenet121":
                 backbone = torchvision.models.densenet121(weights="DEFAULT").features
@@ -182,7 +173,7 @@ class MaskRCNN(TorchVisionGenericModel):
         coco_eval.summarize()
         for m, v in zip(metrics, coco_eval.stats):
             results[f"{m}"] += [v]
-        path = f"tests/maskrcnn_{self.backbone}/"
+        path = f"tests/maskrcnn_{self.backbone}"+ ("_RGBD" if self.depth else "") +"/"
         os.makedirs(path, exist_ok=True)
         df = pd.DataFrame.from_dict(results, orient='index', columns=["Segmentation", "Detection"])
         df.to_csv(os.path.join(path, "results.csv"))
@@ -251,14 +242,15 @@ class MaskRCNN(TorchVisionGenericModel):
         results = self.model(images)
         for image, r, t in zip(images, results, targets):
             name = t["image_name"]
-            image = (255.0 * (image - image.min()) / (image.max() - image.min())).to(torch.uint8)
+            img = t["img_org"] if self.depth else image
+            image = (255.0 * (img - img.min()) / (img.max() - img.min())).to(torch.uint8)
             colors = [(255,0,0) if x == 1 else (0,0,255) for x in r["labels"]]
             masks = r["masks"].squeeze(1) > 0.5
             visualized = draw_bounding_boxes(image,boxes= r["boxes"],colors=colors,width=2)
             visualized = draw_segmentation_masks(visualized,masks=masks,alpha=0.6,colors=colors)
             visualized = visualized.permute(1, 2, 0).numpy().astype(np.uint8)
-            path = f"tests/maskrcnn_{self.backbone}/visualizations/"
-            os.makedirs(path,exist_ok=True)
+            path = f"tests/maskrcnn_{self.backbone}"+ ("_RGBD" if self.depth else "") +"/visualizations/"
+            os.makedirs(path, exist_ok=True)
             cv2.imwrite(f"{path}{name}.jpg", cv2.cvtColor(visualized,cv2.COLOR_BGR2RGB))
 
         return results

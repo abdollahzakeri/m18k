@@ -35,6 +35,8 @@ def main(model_name="maskrcnn_resnet50_fpn_v2", batch_size = 2, depth=True):
             model = MaskRCNN(backbone="efficientnet_b1")
         case "maskrcnn_densenet121":
             model = MaskRCNN(backbone="densenet121")
+        case "maskrcnn_resnet101":
+            model = MaskRCNN(backbone="resnet_101", depth=depth)
 
         case "fasterrcnn_resnet50_fpn_v2":
             model = FasterRCNN()
