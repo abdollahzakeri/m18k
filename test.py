@@ -17,13 +17,13 @@ def main(model_name="maskrcnn_resnet50_fpn_v2"):
     t = transforms.ToTensor()
     # if model_name == "swin_v2_b":
 
-    dm = M18KDataModule(batch_size=8, outputs="torch", depth=False)
+    dm = M18KDataModule(batch_size=8, outputs="torch", depth=True)
 
     # Instantiate the model
     match model_name:
 
         case "maskrcnn_resnet50_fpn_v2":
-            model = MaskRCNN(depth=False)
+            model = MaskRCNN(depth=True)
         case "maskrcnn_mobilenet_v3":
             model = MaskRCNN(backbone="mobilenet_v3")
         case "maskrcnn_efficientnet_b1":
@@ -42,7 +42,7 @@ def main(model_name="maskrcnn_resnet50_fpn_v2"):
     trainer = Trainer(max_epochs=1000, devices=1, log_every_n_steps=1, logger=tb_logger)
 
     # Train the model ⚡
-    trainer.test(model, dm, ckpt_path="runs/maskrcnn_resnet50_fpn_v2/maskrcnn_resnet50_fpn_v2-epoch=398-val_loss=0.0557.ckpt")
+    trainer.test(model, dm, ckpt_path="runs/maskrcnn_resnet50_fpn_v2_RGBD/maskrcnn_resnet50_fpn_v2_RGBD-epoch=265-val_loss=0.0687.ckpt")
 
 
 if __name__ == '__main__':

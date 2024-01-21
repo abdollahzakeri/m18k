@@ -244,12 +244,12 @@ class MaskRCNN(TorchVisionGenericModel):
             name = t["image_name"]
             img = t["img_org"] if self.depth else image
             image = (255.0 * (img - img.min()) / (img.max() - img.min())).to(torch.uint8)
-            colors = [(255,0,0) if x == 1 else (0,0,255) for x in r["labels"]]
+            colors = [(31,119,180) if x == 1 else (255,127,15) for x in r["labels"]]
             masks = r["masks"].squeeze(1) > 0.5
             visualized = draw_bounding_boxes(image,boxes= r["boxes"],colors=colors,width=2)
             visualized = draw_segmentation_masks(visualized,masks=masks,alpha=0.6,colors=colors)
             visualized = visualized.permute(1, 2, 0).numpy().astype(np.uint8)
-            path = f"tests/maskrcnn_{self.backbone}"+ ("_RGBD" if self.depth else "") +"/visualizations/"
+            path = f"tests/maskrcnn_{self.backbone}" + ("_RGBD" if self.depth else "") +"/visualizations/"
             os.makedirs(path, exist_ok=True)
             cv2.imwrite(f"{path}{name}.jpg", cv2.cvtColor(visualized,cv2.COLOR_BGR2RGB))
 
