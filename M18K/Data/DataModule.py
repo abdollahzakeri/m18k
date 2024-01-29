@@ -1,9 +1,11 @@
 import lightning as pl
-from .Dataset import M18KDataset
-from torch.utils.data import DataLoader
 import torch
-class M18KDataModule(pl.LightningDataModule):
+from torch.utils.data import DataLoader
 
+from .Dataset import M18KDataset
+
+
+class M18KDataModule(pl.LightningDataModule):
     def __init__(self, batch_size=4, transform=None, outputs="torch", depth=True):
         super().__init__()
         self.transform = transform
@@ -11,6 +13,7 @@ class M18KDataModule(pl.LightningDataModule):
         self.outputs = outputs
         self.collate = self.collate_fn_torch if outputs == "torch" else self.collate_fn_hf
         self.depth = depth
+
     def setup(self, stage=None):
         pass
 
@@ -26,13 +29,16 @@ class M18KDataModule(pl.LightningDataModule):
                 "mask_labels": mask_labels}
 
     def train_dataloader(self):
-        ds = M18KDataset("M18K/Data/train", transforms=self.transform, train=True, outputs=self.outputs, depth=self.depth)
+        ds = M18KDataset("M18K/Data/train", transforms=self.transform, train=True, outputs=self.outputs,
+                         depth=self.depth)
         return DataLoader(ds, batch_size=self.batch_size, shuffle=True, num_workers=4, collate_fn=self.collate)
 
     def val_dataloader(self):
-        ds = M18KDataset("M18K/Data/valid", transforms=self.transform, train=False, outputs=self.outputs, depth=self.depth)
+        ds = M18KDataset("M18K/Data/valid", transforms=self.transform, train=False, outputs=self.outputs,
+                         depth=self.depth)
         return DataLoader(ds, batch_size=self.batch_size, shuffle=False, num_workers=4, collate_fn=self.collate)
 
     def test_dataloader(self):
-        ds = M18KDataset("M18K/Data/test", transforms=self.transform, train=False, outputs=self.outputs, depth=self.depth)
+        ds = M18KDataset("M18K/Data/test", transforms=self.transform, train=False, outputs=self.outputs,
+                         depth=self.depth)
         return DataLoader(ds, batch_size=self.batch_size, shuffle=False, num_workers=4, collate_fn=self.collate)

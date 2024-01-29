@@ -1,18 +1,16 @@
+import copy
 import os
-import cv2
 
+import albumentations as A
+import cv2
 import numpy as np
 import torch
 import torchvision.transforms
 from pycocotools.coco import COCO
-
-from torchvision.io import read_image
-from torchvision.ops.boxes import masks_to_boxes
 from torchvision import tv_tensors
+from torchvision.ops.boxes import masks_to_boxes
 from torchvision.transforms.v2 import functional as F
 
-import albumentations as A
-import copy
 
 class M18KDataset(torch.utils.data.Dataset):
     def __init__(self, root, transforms, outputs="torch", train=True, depth=True):
@@ -31,7 +29,6 @@ class M18KDataset(torch.utils.data.Dataset):
             A.Affine([0.8, 1.2], [0.8, 1.2], None, [-360, 360], [-15, 15], fit_output=True, p=0.8),
             A.Resize(720, 1280)
         ])
-
         if depth is not None:
             transformed = transform(image=image, masks=masks, mask=depth)
             transformed_image = transformed['image']
@@ -45,10 +42,10 @@ class M18KDataset(torch.utils.data.Dataset):
             return transformed_image, transformed_mask
 
     def __getitem__(self, idx):
-        # load images and masks
+
         image_object = self.annotations.imgs[idx]
         img_path = image_object["file_name"]
-        # mask_path = os.path.join(self.root, "PedMasks", self.masks[idx])
+
         img = cv2.imread(os.path.join(self.root, img_path))
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         if self.depth:
@@ -58,45 +55,30 @@ class M18KDataset(torch.utils.data.Dataset):
             max_diff_index = np.argmax(differences)
             threshold = percentiles[max_diff_index]
             if max_diff_index > 95 and threshold > 0:
-
                 d = np.clip(d, 0.0, threshold)
-
         h, w, _ = img.shape
         masks = self.annotations.loadAnns(self.annotations.getAnnIds([image_object["id"]]))
         mask_list = [self.annotations.annToMask(mask) for mask in masks]
-
         if self.train:
             if self.depth:
                 img, mask_list, d = self.augmentation(img, mask_list, d)
             else:
                 img, mask_list = self.augmentation(img, mask_list)
 
-
-        # tensor of shape [#objects,h,w] of binary masks
         binary_masks = torch.tensor(np.dstack(mask_list), dtype=torch.uint8).permute([2, 0, 1])
 
-        # get bounding box coordinates for each mask
         boxes = masks_to_boxes(binary_masks)
 
-        # there is only one class
         labels = torch.tensor([mask["category_id"] for mask in masks], dtype=torch.int64)
-
         image_id = idx
         area = torch.tensor([mask["area"] for mask in masks], dtype=torch.float32)
-
         iscrowd = torch.tensor([mask["iscrowd"] for mask in masks], dtype=torch.int64)
 
-        # Wrap sample and targets into torchvision tv_tensors:
-        # img = tv_tensors.Image(img)
         img = torchvision.transforms.ToTensor()(img)
-
         if self.depth:
             img_org = copy.deepcopy(img)
             d = torch.from_numpy(d / np.max(d)).float()
             img = torch.cat((img, d.unsqueeze(0)), dim=0)
-
-        # if self.transforms is not None and self.train:
-        #     img, target = self.transforms(img, target)
 
         if self.outputs == "torch":
             target = {}

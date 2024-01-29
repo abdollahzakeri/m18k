@@ -1,38 +1,27 @@
-from typing import Any
-
-import torch.nn.functional as F
-from lightning import LightningModule, Trainer
-import torchvision
 import torch
-from lightning.pytorch.utilities.types import STEP_OUTPUT
-from torch.nn import BCELoss
-from torchmetrics import Accuracy
+from lightning import LightningModule
 from torch.optim.lr_scheduler import StepLR
 
 
-
 class TorchVisionGenericModel(LightningModule):
-
     def __init__(self):
         super(TorchVisionGenericModel, self).__init__()
-        self.num_classes = 3  # 1 class (person) + background
+        self.num_classes = 3
 
     def forward(self, x):
         images, targets = x
         output = self.model(images, targets)
-        # print(output)
+
         return output
 
     def training_step(self, batch):
         losses = self(batch)
         self.model.train()
         loss = sum(losses.values()) / len(losses)
-
         self.log('train_loss_classifier', losses["loss_classifier"], prog_bar=True, sync_dist=True)
         self.log('train_loss_box_reg', losses["loss_box_reg"], prog_bar=True, sync_dist=True)
         self.log('train_trailoss_objectnessn_loss', losses["loss_objectness"], prog_bar=True, sync_dist=True)
         self.log('train_loss_rpn_box_reg', losses["loss_rpn_box_reg"], prog_bar=True, sync_dist=True)
-
         self.log('train_loss', loss, prog_bar=True, sync_dist=True)
         return loss
 
@@ -42,7 +31,6 @@ class TorchVisionGenericModel(LightningModule):
         loss = sum(losses.values()) / len(losses)
         self.log('val_loss', loss, prog_bar=True, sync_dist=True)
         return loss
-
 
     def configure_optimizers(self):
         optim = torch.optim.Adam(self.parameters(), lr=0.001)
