@@ -14,9 +14,11 @@ from torchvision.transforms.v2 import functional as F
 
 class M18KDataset(torch.utils.data.Dataset):
     def __init__(self, root, transforms, outputs="torch", train=True, depth=True):
-        self.root = root
+        parent = os.path.abspath(os.path.dirname(__file__))
+        self.root = os.path.join(parent,root)
         self.transforms = transforms
-        self.annotations = COCO(os.path.join(root, "_annotations.coco.json"))
+        print(__file__)
+        self.annotations = COCO(os.path.join(self.root, "_annotations.coco.json"))
         self.train = train
         self.outputs = outputs
         self.depth = depth
@@ -46,7 +48,7 @@ class M18KDataset(torch.utils.data.Dataset):
         image_object = self.annotations.imgs[idx]
         img_path = image_object["file_name"]
 
-        img = cv2.imread(os.path.join(self.root, img_path))
+        img = cv2.imread(os.path.join(self.root, "images", img_path))
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         if self.depth:
             d = np.load(os.path.join(self.root, img_path[:-4] + ".npy"))

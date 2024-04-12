@@ -1,0 +1,6 @@
+train: train/images
+val: test/images
+test: valid/images
+
+nc: 2
+names: ['BB', 'WB']

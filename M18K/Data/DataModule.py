@@ -1,13 +1,14 @@
 import lightning as pl
 import torch
 from torch.utils.data import DataLoader
-
+import os
 from .Dataset import M18KDataset
 
 
 class M18KDataModule(pl.LightningDataModule):
     def __init__(self, batch_size=4, transform=None, outputs="torch", depth=True):
         super().__init__()
+        self.root = os.path.abspath(os.path.dirname(__file__))
         self.transform = transform
         self.batch_size = batch_size
         self.outputs = outputs
@@ -29,16 +30,16 @@ class M18KDataModule(pl.LightningDataModule):
                 "mask_labels": mask_labels}
 
     def train_dataloader(self):
-        ds = M18KDataset("M18K/Data/train", transforms=self.transform, train=True, outputs=self.outputs,
+        ds = M18KDataset(os.path.join(self.root,"train"), transforms=self.transform, train=True, outputs=self.outputs,
                          depth=self.depth)
         return DataLoader(ds, batch_size=self.batch_size, shuffle=True, num_workers=4, collate_fn=self.collate)
 
     def val_dataloader(self):
-        ds = M18KDataset("M18K/Data/valid", transforms=self.transform, train=False, outputs=self.outputs,
+        ds = M18KDataset(os.path.join(self.root,"valid"), transforms=self.transform, train=False, outputs=self.outputs,
                          depth=self.depth)
         return DataLoader(ds, batch_size=self.batch_size, shuffle=False, num_workers=4, collate_fn=self.collate)
 
     def test_dataloader(self):
-        ds = M18KDataset("M18K/Data/test", transforms=self.transform, train=False, outputs=self.outputs,
+        ds = M18KDataset(os.path.join(self.root,"test"), transforms=self.transform, train=False, outputs=self.outputs,
                          depth=self.depth)
         return DataLoader(ds, batch_size=self.batch_size, shuffle=False, num_workers=4, collate_fn=self.collate)

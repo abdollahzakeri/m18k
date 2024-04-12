@@ -29,5 +29,6 @@
 ### retinanet_resnet50_fpn_v2
 ### fasterrcnn_swin_v2_fpn
 ## command to run
-##srun ~/miniconda3/envs/hr/bin/python train.py maskrcnn_resnet101 --batch_size=4 --depth
-srun ~/miniconda3/envs/hr/bin/python test.py
+## srun ~/miniconda3/envs/hr/bin/python train.py rtdetr-x.pt --batch_size=8 --image_size=640
+## srun ~/miniconda3/envs/hr/bin/python test.py
+srun jupyter lab --no-browser
