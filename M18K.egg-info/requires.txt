@@ -1,0 +1,12 @@
+opencv-python
+matplotlib
+ultralytics
+torch
+albumentations
+pycocotools
+lightning
+timm
+scipy
+torchvision
+gdown
+jupyter

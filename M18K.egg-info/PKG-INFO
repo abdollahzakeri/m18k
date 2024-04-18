@@ -1,3 +1,25 @@
+Metadata-Version: 2.1
+Name: M18K
+Version: 1.0
+Summary: Mushroom RGB-D image dataset for object detection and instance segmentation
+Home-page: http://www.abdollahzakeri.github.io/
+Author: Abdollah Zakeri
+Author-email: azakeri@uh.edu
+License: MIT
+License-File: LICENSE
+Requires-Dist: opencv-python
+Requires-Dist: matplotlib
+Requires-Dist: ultralytics
+Requires-Dist: torch
+Requires-Dist: albumentations
+Requires-Dist: pycocotools
+Requires-Dist: lightning
+Requires-Dist: timm
+Requires-Dist: scipy
+Requires-Dist: torchvision
+Requires-Dist: gdown
+Requires-Dist: jupyter
+
 # M18K: Mushroom Detection Dataset
 
 Welcome to the Mushroom Detection Dataset repository. This dataset is a valuable resource for researchers and practitioners interested in automating agricultural processes, specifically related to mushroom harvesting, growth monitoring, and quality control. It provides a dedicated dataset for button mushroom (Agaricus bisporus) detection, comprising over 18,000 mushroom instances in 423 RGB-D image pairs.
