@@ -1,3 +1,6 @@
+# Update - March 22, 2025:
+The dataset code and files will be updated to include the second version including 3D pose estimation data, growth monitoring and yield estimation, along with an extended detection subset of 2,000 images. Check back for updates.
+
 # M18K: Mushroom Detection Dataset
 
 Welcome to the Mushroom Detection Dataset repository. This dataset is a valuable resource for researchers and practitioners interested in automating agricultural processes, specifically related to mushroom harvesting, growth monitoring, and quality control. It provides a dedicated dataset for button mushroom (Agaricus bisporus) detection, comprising over 18,000 mushroom instances in 423 RGB-D image pairs.
