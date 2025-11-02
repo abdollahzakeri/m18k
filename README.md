@@ -22,6 +22,8 @@ You can download the dataset directly from the repository using the link below:
 
 [Download Dataset](https://drive.google.com/file/d/1iPANwP1k6tbz1EZRdG2qbst1tqqYsZ_x/view?usp=sharing)
 
+[Download 3D dataset](https://zakerimushroom.sfo3.digitaloceanspaces.com/M18K_3D.zip)
+
 Please refer to the dataset's license file for information about usage and distribution rights.
 
 ## Environment Setup
@@ -46,8 +48,23 @@ To install the `m18k` package for working with the dataset, use the following co
 Coming soon.
 
 ## References
+Please cite our publication if you use our code, models, or datasets:
 
-Coming soon.
+```bash
+
+@Article{computers14050199,
+AUTHOR = {Zakeri, Abdollah and Fawakherji, Mulham and Kang, Jiming and Koirala, Bikram and Balan, Venkatesh and Zhu, Weihang and Benhaddou, Driss and Merchant, Fatima A.},
+TITLE = {M18K: A Multi-Purpose Real-World Dataset for Mushroom Detection, 3D Pose Estimation, and Growth Monitoring},
+JOURNAL = {Computers},
+VOLUME = {14},
+YEAR = {2025},
+NUMBER = {5},
+ARTICLE-NUMBER = {199},
+URL = {https://www.mdpi.com/2073-431X/14/5/199},
+ISSN = {2073-431X},
+DOI = {10.3390/computers14050199}
+}
+```
 
 ---
 
