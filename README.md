@@ -1,3 +1,6 @@
+# Update - November 2, 2025:
+The new dataset subsets have been uploaded.
+
 # Update - March 22, 2025:
 The dataset code and files will be updated to include the second version including 3D pose estimation data, growth monitoring and yield estimation, along with an extended detection subset of 2,000 images. Check back for updates.
 
@@ -20,9 +23,13 @@ The dataset was collected using an Intel RealSense D405 camera, capturing realis
 
 You can download the dataset directly from the repository using the link below:
 
-[Download Dataset](https://drive.google.com/file/d/1iPANwP1k6tbz1EZRdG2qbst1tqqYsZ_x/view?usp=sharing)
+[Download Segmentation Dataset - V1 (423 images)](https://drive.google.com/file/d/1iPANwP1k6tbz1EZRdG2qbst1tqqYsZ_x/view?usp=sharing)
+
+[Download Segmentation Dataset - V2 (4,652 images)](https://zakerimushroom.sfo3.digitaloceanspaces.com/M18K_3D.zip)
 
 [Download 3D dataset](https://zakerimushroom.sfo3.digitaloceanspaces.com/M18K_3D.zip)
+
+[Download Growth Monitoring dataset (2,121 images)](https://zakerimushroom.sfo3.digitaloceanspaces.com/Growth.zip)
 
 Please refer to the dataset's license file for information about usage and distribution rights.
 
