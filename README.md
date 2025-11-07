@@ -25,7 +25,7 @@ You can download the dataset directly from the repository using the link below:
 
 [Download Segmentation Dataset - V1 (423 images)](https://drive.google.com/file/d/1iPANwP1k6tbz1EZRdG2qbst1tqqYsZ_x/view?usp=sharing)
 
-[Download Segmentation Dataset - V2 (4,652 images)](https://zakerimushroom.sfo3.digitaloceanspaces.com/M18K_3D.zip)
+[Download Segmentation Dataset - V2 (4,652 images)](https://zakerimushroom.sfo3.digitaloceanspaces.com/M18KV2.tar.zst)
 
 [Download 3D dataset](https://zakerimushroom.sfo3.digitaloceanspaces.com/M18K_3D.zip)
 
