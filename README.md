@@ -27,6 +27,13 @@ You can download the dataset directly from the repository using the link below:
 
 [Download Segmentation Dataset - V2 (4,652 images)](https://zakerimushroom.sfo3.digitaloceanspaces.com/M18KV2.tar.zst)
 
+⚠️ Some browsers may save this as `.zip`, but the file is actually a `.tar.zst` archive. Rename it to `M18KV2.tar.zst` before extraction if needed.
+
+You can use the following command in Linux/macOS or its equivalent on Windows to correctly extract the file:
+```bash
+tar --zstd -xf M18KV2.zip
+```
+
 [Download 3D dataset](https://zakerimushroom.sfo3.digitaloceanspaces.com/M18K_3D.zip)
 
 [Download Growth Monitoring dataset (2,121 images)](https://zakerimushroom.sfo3.digitaloceanspaces.com/Growth.zip)
